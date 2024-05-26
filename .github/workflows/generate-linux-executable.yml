@@ -33,7 +33,7 @@ jobs:
 
     - name: Build executable
       run: |
-        pyinstaller --name zeroctagon-interface-amd64 --onefile --clean --arch=amd64 index.py
+        pyinstaller --name zeroctagon-interface-amd64 --onefile --clean index.py
         
     - name: Extract Tag Name
       id: extract_tag_name
