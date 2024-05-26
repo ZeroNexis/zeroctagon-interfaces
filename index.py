@@ -11,7 +11,7 @@ from fastapi.responses import RedirectResponse, HTMLResponse
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-# 取消验证警报
+# 取消验证警报（可选）
 urllib3.disable_warnings()
 
 # 初始化变量
