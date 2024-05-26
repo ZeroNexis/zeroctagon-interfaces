@@ -1,0 +1,65 @@
+name: Build and Release Linux Executable
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # 仅当标签匹配v.x.y.z格式时触发
+    branches:
+      ["main"]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 使用GitHub Actions的默认Token进行授权
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Install PyInstaller
+      run: |
+        pip install pyinstaller
+
+    - name: Build executable
+      run: |
+        pyinstaller --name zeroctagon-interface-amd64 --onefile --clean --os=linux --arch=amd64 index.py
+        
+    - name: Extract Tag Name
+      id: extract_tag_name
+      if: startsWith(github.ref, 'refs/tags/')
+      run: echo "::set-output name=tag_name::${GITHUB_REF#refs/tags/}"
+      
+    - name: Create Release
+      id: create_release
+      if: startsWith(github.ref, 'refs/tags/') # 确保只有在标签上才创建Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.extract_tag_name.outputs.tag_name }}
+        release_name: Release ${{ steps.extract_tag_name.outputs.tag_name }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      id: upload-release-asset
+      if: startsWith(github.ref, 'refs/tags/') # 确保只有在标签上才上传Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/zeroctagon-interface-amd64
+        asset_name: zeroctagon-interface-amd64
+        asset_content_type: application/octet-stream
