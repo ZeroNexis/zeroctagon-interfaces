@@ -16,31 +16,35 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set up Python 3.x
+      if: startsWith(github.ref, 'refs/tags/')
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
 
     - name: Install dependencies
+      if: startsWith(github.ref, 'refs/tags/')
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
     - name: Install PyInstaller
+      if: startsWith(github.ref, 'refs/tags/')
       run: |
         pip install pyinstaller
 
     - name: Build executable
+      if: startsWith(github.ref, 'refs/tags/')
       run: |
         pyinstaller --name zeroctagon-interface-amd64 --onefile --clean index.py
         
     - name: Extract Tag Name
       id: extract_tag_name
-      # if: startsWith(github.ref, 'refs/tags/')
+      if: startsWith(github.ref, 'refs/tags/')
       run: echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
       
     - name: Create Release
       id: create_release
-      # if: startsWith(github.ref, 'refs/tags/') # 确保只有在标签上才创建Release
+      if: startsWith(github.ref, 'refs/tags/') # 确保只有在标签上才创建Release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -52,7 +56,7 @@ jobs:
 
     - name: Upload Release Asset
       id: upload-release-asset
-      # if: startsWith(github.ref, 'refs/tags/') # 确保只有在标签上才上传Asset
+      if: startsWith(github.ref, 'refs/tags/') # 确保只有在标签上才上传Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
