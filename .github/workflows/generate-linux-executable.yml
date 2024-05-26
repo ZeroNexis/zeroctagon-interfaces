@@ -3,15 +3,13 @@ name: Generate Linux Executable
 on:
   push:
     tags:
-      - 'v*.*.*' # 仅当标签匹配v.x.y.z格式时触发
+      - 'v*.*.*' # 仅当标签匹配vX.Y.Z格式时触发
     branches:
       ["main"]
 
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 使用GitHub Actions的默认Token进行授权
-
 jobs:
   build-and-release:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -38,7 +36,7 @@ jobs:
     - name: Extract Tag Name
       id: extract_tag_name
       # if: startsWith(github.ref, 'refs/tags/')
-      run: echo "::set-output name=tag_name::${GITHUB_REF#refs/tags/}"
+      run: echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
       
     - name: Create Release
       id: create_release
