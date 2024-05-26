@@ -3,7 +3,7 @@ name: Generate Linux Executable
 on:
   push:
     tags:
-      - 'v*.*.*' # 仅当标签匹配vX.Y.Z格式时触发
+      - 'v*' # 仅当标签匹配vX.Y.Z格式时触发
     branches:
       ["main"]
 
